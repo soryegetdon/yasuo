@@ -1,0 +1,67 @@
+import csv
+f=open('서울시 공영주차장 안내 정보.csv', encoding='utf8')
+g=open('주차장수.csv')
+h=open('116_DT_MLTM_5498_20180614075305.csv')
+data1 = list(csv.reader(f))
+data2 = list(csv.reader(g))
+data3 = list(csv.reader(h))
+parkingnum1 = 0 #공영주차장
+parkingnum=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#구별 주차장 개수
+parkingnum2 = []  #공동주택 주차장
+district = ["강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구", "금천구", "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구", "서초구", "성동구", "성북구", "송파구", "양천구", "영등포구", "용산구", "은평구", "종로구", "중구", "중랑구"]
+carnum = []
+rownum1 = 0 
+graph=[]
+for row in data1:
+    rownum1 = rownum1 + 1
+    if rownum1 >1:
+        parkingnum1 = parkingnum1 + int(row[10])
+
+for row in data1:
+    for i in range(len(district)):
+        if district[i] in row[2]:
+            parkingnum[i]=parkingnum[i]+int(row[10])
+    
+        
+for row in data2:
+     parkingnum2.append(int(row[-1]))
+        
+
+for row in data3:
+    if row[1]=='계' and row[2]=='총계' and row[3] == '자가용':
+        seoul = int(row[-1])
+    
+    for i in range(len(district)):
+        if row[1]==district[i] and row[2]=='총계' and row[3]=='자가용':
+            carnum.append(int(row[-1]))
+
+carnum.append(seoul)
+
+
+
+if carnum[25]>parkingnum1+parkingnum2[25]:
+    a=carnum[25]-parkingnum1-parkingnum2[25]
+    print('서울시에는 주차장이',a,'만큼 부족합니다')
+    
+else:
+    b=-carnum[25]+parkingnum1+parkingnum2[25]
+    print('서울시에는 주차장이',b,'만큼 남습니다.')
+    
+
+
+for i in range(len(district)):
+    if carnum[i]>parkingnum[i]+parkingnum2[i]:
+        a=carnum[i]-parkingnum[i]-parkingnum2[i]
+        print(district[i],'에는 주차장이',a,'만큼 부족합니다.')
+        graph.append(-a)
+    else:
+        b=-carnum[i]+parkingnum[i]+parkingnum2[i]
+        print(district[i],'에는 주차장이',b,'만큼 남습니다.')
+        graph.append(b)
+
+import matplotlib.pyplot as plt
+plt.figure(figsize = (17,7), dpi = 500)
+plt.rc('font', family = 'Malgun Gothic')
+plt.bar(range(25), graph, width=0.5, color='skyblue')
+plt.xticks(range(25), district)
+plt.show()
